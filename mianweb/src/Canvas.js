@@ -9,14 +9,22 @@ export default class App extends Component {
     }
 
     componentDidMount() {
-        this.initCharts();
+        this.initCharts(this.props);
     }
+    componentDidMount(){
+        this.initCharts(this.props)
+    }
+    componentWillReceiveProps(nextProps) {
+        // if(nextProps.yData[0] != this.props.yData[0]){
+            this.initCharts(nextProps);
+        // }
+      }
     //初始化
-    initCharts = () => {
-        let myChart = echarts.init(document.getElementById(`myChart${this.props.index}`));
+    initCharts = (props) => {
+        let myChart = echarts.init(document.getElementById(`myChart${props.index}`));
         let option = {
             title: {
-                text: this.props.name
+                text: props.name
             },
             tooltip: {
                 trigger: 'axis'
@@ -24,10 +32,10 @@ export default class App extends Component {
             },
             xAxis: {
                 type: 'category',
-                data: this.props.xData,
+                data: props.xData,
                 boundaryGap: false,
-                // min:this.props.xData[0], // 起始
-                // max:this.props.xData[this.props.xData.length -1] // 终止
+                // min:props.xData[0], // 起始
+                // max:props.xData[props.xData.length -1] // 终止
             },
             yAxis: {
                 type: 'value',
@@ -38,7 +46,7 @@ export default class App extends Component {
             series: [
                 {
                     symbol: "none",
-                    data: this.props.yData,
+                    data: props.yData,
                     type: 'line',
                     smooth: true,
                     color: '#000',
