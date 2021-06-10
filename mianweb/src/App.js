@@ -1,18 +1,68 @@
 import logo from './logo.svg';
 import './App.css';
-import React, { Component,useState } from 'react'
-
-
+import React, { Component, useState } from 'react'
+import axios from 'axios'
+import md5 from 'js-md5'
+import Canvas from './Canvas'
+const createUrl = 'http://cushion.bodyta.com:19356/rec/report'
+const delUrl = 'http://cushion.bodyta.com:19356/rec/clear'
+const key = '13a43a4fd27e4b9e8acee7b82c11e27c'
 function App() {
-  const [deviceId , setDeviceID] = useState('')
-  const fetchData = () => {
-    
+  const [deviceId, setDeviceID] = useState('308201171')
+  const [data, setData] = useState('')
+  const create = () => {
+    const timestamp = Date.parse(new Date()) / 1000
+    const year = new Date().getFullYear()
+    const month = new Date().getMonth() + 1
+    const day = new Date().getDate()
+    const date = `${year}-${month}-${day}`
+    axios.post(createUrl, {
+      sign: key + timestamp,
+      timestamp: timestamp,
+      did: deviceId,
+      date: date
+    }).then(res => {
+      console.log(res)
+      setData(res.data.data[0])
+    })
+  }
+  const onDelete = () => {
+    const timestamp = Date.parse(new Date()) / 1000
+    axios.post(delUrl, {
+      sign: key + timestamp,
+      timestamp: timestamp,
+      did: '',
+      date: ''
+    })
   }
   return (
     <div className="App">
-     <input type="text" name="" id="" value={deviceId} onChange={(e) => {setDeviceID(e.target.value)}}/>
-     <button onClick={()=> {fetchData()} } >请求</button>
-     <button>删除</button>
+      <input type="text" name="" id="" value={deviceId} onChange={(e) => { setDeviceID(e.target.value) }} />
+      {md5(deviceId)}
+      <button onClick={() => { create() }} >请求</button>
+      <button onClick={() => { onDelete() }}>删除</button>
+      {data ? <>
+        <div style={{fontSize: 30}}>
+        <p>  睡眠总时长 : {data.total_duration}</p>
+        <p>   在床时间 : {data.inbed_duration}</p>
+        <p>   上床时间 : {data.gobed_time}</p>
+        <p>   离床时间 : {data.outbed_time}</p>
+        <p>   离床次数 ： {data.outbed.n}</p>
+        <p>   离床程度 : {data.outbed.s}</p>
+        <p>  深睡时长 :  {data.deep_duration}</p>
+        <p>   浅睡时长 : {data.light_duration}</p>
+        <p>   清醒时长 : {data.awake_duration}</p>
+        <p>   入睡时长 : {data.sleep_duration}</p>
+        <p>   体动次数 : {data.movement.n}</p>
+        <p>   体动程度 : {data.movement.s}</p>
+        <p>睡眠效率百分比 : {data.sleep_eff.r}</p>
+        <p> 睡眠效率程度 : {data.sleep_eff.s}</p>    
+        </div>  
+        <Canvas yData={data.hx_arr} xData={data.dt_arr} name='呼吸率数据集合' index={1}/> 
+        <Canvas yData={data.outbed_arr} xData={data.dt_arr} index={2} name='离床数据集合'/>
+        <Canvas yData={data.move_arr} xData={data.dt_arr} index={3} name='体动数据集合'/>
+        <Canvas yData={data.sleep_arr} xData={data.dt_arr} index={4} name='睡眠状态数据集合'/>
+        </> : null}
     </div>
   );
 }

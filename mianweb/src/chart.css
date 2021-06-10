@@ -1,0 +1,9 @@
+.chart{
+    display: flex;
+    flex: 1;
+    /* margin-left: 18%; */
+}
+.chart #myChart{
+    width: 64%;
+    height: 250px;
+}
