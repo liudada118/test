@@ -1,16 +1,36 @@
 import logo from './logo.svg';
 import './App.css';
 // import 'antd/lib/button/style' 
-import React, { Component, useState } from 'react'
+import React, { Component, useState,useEffect} from 'react'
 import axios from 'axios'
 import md5 from 'js-md5'
 import Canvas from './Canvas'
 import { Select } from 'antd';
+const ws = new WebSocket('wss://bah.bodyta.com/bed/308201171')
+
 const { Option } = Select;
 const createUrl = 'http://cushion.bodyta.com:19356/rec/report'
 const delUrl = 'http://cushion.bodyta.com:19356/rec/clear'
 const key = '13a43a4fd27e4b9e8acee7b82c11e27c'
 function App() {
+  useEffect(() => {
+    ws.onopen = (e) => {
+      console.log('ws sussess')
+    }
+    ws.onmessage = (e) => {
+      console.log(e.data,'wsdata',new Date(
+
+      ))
+      let dataArr = e.data.split('-')
+      setBreathe(parseInt(dataArr[2],16))
+      setMove(parseInt(dataArr[0],16))
+      setLevel(parseInt(dataArr[1],16))
+    }
+  }, [])
+  const [breathe , setBreathe] = useState('')
+  const [move , setMove] = useState('')
+  const [level , setLevel] = useState('')
+
   const [deviceId, setDeviceID] = useState('308201171')
   const [data, setData] = useState('')
   const [allData, setAllData] = useState('')
@@ -37,6 +57,7 @@ function App() {
       }
       if (Array.isArray(res.data.data)) {
         setData(res.data.data[res.data.data.length-1])
+        
         setAllData(res.data.data)
         let timearr = []
         res.data.data.map((a, index) => {
@@ -70,6 +91,9 @@ function App() {
       </Select> : null}
       <button onClick={() => { create() }} >请求</button>
       <button onClick={() => { onDelete() }}>删除</button>
+      {breathe !=='' ? <div>呼吸 {breathe}</div> : null }
+      {move!=='' ? <div>体动 {move}</div> : null }
+      {level!=='' ? <div>离床 {level}</div> : null }
       {data ? <>
         <div style={{ fontSize: 30 }}>
           <p>  睡眠总时长 : {data.total_duration}</p>
