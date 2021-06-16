@@ -6,14 +6,42 @@ import axios from 'axios'
 import md5 from 'js-md5'
 import Canvas from './Canvas'
 import { Select } from 'antd';
-const ws = new WebSocket('wss://bah.bodyta.com/bed/308201171')
+
 
 const { Option } = Select;
 const createUrl = 'http://cushion.bodyta.com:19356/rec/report'
 const delUrl = 'http://cushion.bodyta.com:19356/rec/clear'
 const key = '13a43a4fd27e4b9e8acee7b82c11e27c'
+
+// function useDebounceHook(value, delay) {
+//   const [debounceValue, setDebounceValue] = useState(value);
+//   useEffect(() => {
+//     let timer = setTimeout(() => setDebounceValue(value), delay);
+//     return () => clearTimeout(timer);
+//   }, [value, delay]);
+//   return debounceValue;
+// }
+
 function App() {
-  useEffect(() => {
+  const [breathe , setBreathe] = useState('')
+  const [move , setMove] = useState('')
+  const [level , setLevel] = useState('')
+
+  const [deviceId, setDeviceID] = useState('308201171')
+  const [data, setData] = useState('')
+  const [allData, setAllData] = useState('')
+  const [timeArr, setTimeArr] = useState('')
+  const [rp_id , setRp_id] = useState('') 
+  // const deviceIddeb = useDebounceHook(deviceId, 1000);
+  // useEffect(() => {
+    
+  //   axios.get('http://192.168.31.117/mi/deviceSub?_nonce=yLyaIM5XJi8BnMQj&app_id=10171&data=3nWzYPfeZmGDUGgrJIf0Qemz3vJESQSW0IEPsCjwwh%2B2qm7NOMoFTs72gg8wR20qFMl6sAW4PNHZTTI2jHbl29ASAPfXgtQr8sUkTsXl3OUXYQCMnXhqn5NfvbpAgepPFc6kbYt0zfIItwAHSKYR2TVinJShTVGaGYOEdCwhR%2B0TbW1BJ0B8t%2BsiIxyxbRCvHRm8Ul%2FFJH8awmCVpleNnJehxsQLGcara4%2Fs9g7GadXeVFt5SMWLQY%2FoBxFd6IzAJmD7g%2F7GeQnmvEiljqxJ0WR7AMncnnySxSYeWi4ipML%2BFLfg3jRFqQ%2BO%2FqNcge4Ql%2BI8Dh94PHK573m03uvsZg%3D%3D&signature=KlQMzVEGoWcbY63zGYrGQyJGoH8%3D')
+  //   .then((res) => console.log(res))
+    
+  // }, [])
+ 
+  const create = () => {
+    const ws = new WebSocket(`wss://bah.bodyta.com/bed/${deviceId}`)
     ws.onopen = (e) => {
       console.log('ws sussess')
     }
@@ -26,17 +54,9 @@ function App() {
       setMove(parseInt(dataArr[0],16))
       setLevel(parseInt(dataArr[1],16))
     }
-  }, [])
-  const [breathe , setBreathe] = useState('')
-  const [move , setMove] = useState('')
-  const [level , setLevel] = useState('')
 
-  const [deviceId, setDeviceID] = useState('308201171')
-  const [data, setData] = useState('')
-  const [allData, setAllData] = useState('')
-  const [timeArr, setTimeArr] = useState('')
-  const [rp_id , setRp_id] = useState('')
-  const create = () => {
+
+
     const timestamp = Date.parse(new Date()) / 1000
     const year = new Date().getFullYear()
     const month = new Date().getMonth() + 1
@@ -54,6 +74,7 @@ function App() {
       console.log(res)
       if(res.data.rp_id){
         setRp_id(res.data.rp_id)
+        console.log(res.data.rp_id)
       }
       if (Array.isArray(res.data.data)) {
         setData(res.data.data[res.data.data.length-1])
@@ -70,12 +91,13 @@ function App() {
     })
   }
   const onDelete = () => {
+    console.log(rp_id)
     const timestamp = Date.parse(new Date()) / 1000
     axios.post(delUrl, {
       sign: md5(key + timestamp),
       timestamp: timestamp,
       rp_id : rp_id
-    })
+    }).then(res => console.log(res,'delete'))
   }
   const handleChange = (value) => {
     console.log(value)
