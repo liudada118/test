@@ -11,14 +11,28 @@ export default class App extends Component {
     componentDidMount() {
         this.initCharts(this.props);
     }
-    componentDidMount(){
+    componentDidMount(prevProps, prevState, snapshot) {
         this.initCharts(this.props)
     }
     componentWillReceiveProps(nextProps) {
         // if(nextProps.yData[0] != this.props.yData[0]){
-            this.initCharts(nextProps);
+
+        // console.log(nextProps)
+        this.initCharts(nextProps);
         // }
-      }
+    }
+
+    static getDerivedStateFromProps(props, state){
+        // console.log(props,'props')
+    }
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        // console.log(prevProps , 'prevProps')
+        return prevProps
+    }
+    componentDidUpdate(prevProps, prevState, snapshot){
+        this.initCharts(snapshot)
+    }
+    // static get
     //初始化
     initCharts = (props) => {
         let myChart = echarts.init(document.getElementById(`myChart${props.index}`));
@@ -79,7 +93,7 @@ export default class App extends Component {
         return (
             <div >
                 <div className="chart" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                    <div id={`myChart${this.props.index}`} style={{width: '64%',height: 250}}></div>
+                    <div id={`myChart${this.props.index}`} style={{ width: '64%', height: 250 }}></div>
                 </div>
             </div>
         )
