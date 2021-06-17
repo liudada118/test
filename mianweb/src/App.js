@@ -13,6 +13,7 @@ let levelArr = []
 let postureArr = []
 let dateArr = []
 let minArr = []
+let ws
 
 const { Option } = Select;
 const createUrl = 'http://bah.bodyta.com:19356/rec/report'
@@ -130,7 +131,7 @@ function App() {
   // }, [])
 
   const create = () => {
-    const ws = new WebSocket(`wss://bah.bodyta.com/bed/${deviceId}`)
+    ws = new WebSocket(`wss://bah.bodyta.com/bed/${deviceId}`)
     ws.onopen = (e) => {
       console.log('ws sussess')
     }
@@ -152,11 +153,14 @@ function App() {
         // setBreathe(parseInt(dataArr[2],16))
         // setMove(parseInt(dataArr[0],16))
         // setLevel(parseInt(dataArr[1],16))
-        initCharts({ yData: breatheArr, xData: dateArr, index: 5 })
-        initCharts({ yData: moveArr, xData: dateArr, index: 6 })
-        initCharts({ yData: levelArr, xData: dateArr, index: 7 })
+        initCharts({ yData: breatheArr, xData: dateArr, index: 5 ,name : '呼吸' })
+        initCharts({ yData: moveArr, xData: dateArr, index: 6 , name : '体动' })
+        initCharts({ yData: levelArr, xData: dateArr, index: 7 , name : '离床'})
       }
-
+      ws.onclose = () =>{
+        ws = new WebSocket(`wss://bah.bodyta.com/bed/${deviceId}`)
+        
+      }
 
 
       if (JSON.parse(e.data).posture) {
@@ -166,7 +170,7 @@ function App() {
         let date = hour + ':' + min
         minArr.push(date)
         postureArr.push(JSON.parse(e.data).posture == '平躺' ? 1 :JSON.parse(e.data).posture == '爬睡' ? 2 : 3 )
-        initCharts({ yData: postureArr, xData: minArr, index: 8 })
+        initCharts({ yData: postureArr, xData: minArr, index: 8, name : '坐姿' })
       }
 
       // setBreathe(breatheArr)
@@ -238,10 +242,11 @@ function App() {
       {/* {breathe !=='' ? <div>呼吸 {breathe}</div> : null }
       {move!=='' ? <div>体动 {move}</div> : null }
       {level!=='' ? <div>离床 {level}</div> : null } */}
+      <div style={{display : 'flex' , alignItems : 'center' , justifyContent: 'center' , width : '100vw' ,flexDirection : 'column'}}>
       <div id="myChart5" style={{ width: '64%', height: 250 }}></div>
       <div id="myChart6" style={{ width: '64%', height: 250 }}></div>
       <div id="myChart7" style={{ width: '64%', height: 250 }}></div>
-      <div id="myChart8" style={{ width: '64%', height: 250 }}></div>
+      <div id="myChart8" style={{ width: '64%', height: 250 }}></div></div>
       {/* {breathe !== '' ? <Canvas yData={breathe} xData={dateArr} index={5}/> : null} */}
       {move !== '' ? <Canvas yData={move} xData={dateArr} index={6} /> : null}
       {level !== '' ? <Canvas yData={level} xData={dateArr} index={7} /> : null}
@@ -263,11 +268,12 @@ function App() {
           <p>睡眠效率百分比 : {data.sleep_eff.r}</p>
           <p> 睡眠效率程度 : {data.sleep_eff.s}</p>
         </div>
+        
         <Canvas yData={data.hx_arr} xData={data.dt_arr} name='呼吸率数据集合' index={1} />
         <Canvas yData={data.outbed_arr} xData={data.dt_arr} index={2} name='离床数据集合' />
         <Canvas yData={data.move_arr} xData={data.dt_arr} index={3} name='体动数据集合' />
         <Canvas yData={data.sleep_arr} xData={data.dt_arr} index={4} name='睡眠状态数据集合' />
-
+   
       </> : null}
     </div>
   );
