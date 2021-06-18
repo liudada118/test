@@ -58,9 +58,9 @@ const initCharts = (props) => {
           color: '#000'
         },
         // 这里重新定义就可以
-        formatter: props.index==8 ? function(value) {
+        formatter: props.index == 8 ? function (value) {
           var texts = []
-           if (value === 1 || value === '1') {
+          if (value === 1 || value === '1') {
             texts.push('平躺')
           } else if (value === 2 || value === '2') {
             texts.push('爬睡')
@@ -74,7 +74,7 @@ const initCharts = (props) => {
           return texts
         } : null
       },
-      
+
 
     },
     series: [
@@ -121,6 +121,8 @@ function App() {
   const [allData, setAllData] = useState('')
   const [timeArr, setTimeArr] = useState('')
   const [rp_id, setRp_id] = useState('')
+  const [dateStr, setDateStr] = useState('')
+  const [dateNum, setDateNum] = useState('')
   console.log('re', breathe)
   // const deviceIddeb = useDebounceHook(deviceId, 1000);
   // useEffect(() => {
@@ -153,13 +155,13 @@ function App() {
         // setBreathe(parseInt(dataArr[2],16))
         // setMove(parseInt(dataArr[0],16))
         // setLevel(parseInt(dataArr[1],16))
-        initCharts({ yData: breatheArr, xData: dateArr, index: 5 ,name : '呼吸' })
-        initCharts({ yData: moveArr, xData: dateArr, index: 6 , name : '体动' })
-        initCharts({ yData: levelArr, xData: dateArr, index: 7 , name : '离床'})
+        initCharts({ yData: breatheArr, xData: dateArr, index: 5, name: '呼吸' })
+        initCharts({ yData: moveArr, xData: dateArr, index: 6, name: '体动' })
+        initCharts({ yData: levelArr, xData: dateArr, index: 7, name: '离床' })
       }
-      ws.onclose = () =>{
+      ws.onclose = () => {
         ws = new WebSocket(`wss://bah.bodyta.com/bed/${deviceId}`)
-        
+
       }
 
 
@@ -169,8 +171,8 @@ function App() {
         let min = nowDate.getMinutes()
         let date = hour + ':' + min
         minArr.push(date)
-        postureArr.push(JSON.parse(e.data).posture == '平躺' ? 1 :JSON.parse(e.data).posture == '爬睡' ? 2 : 3 )
-        initCharts({ yData: postureArr, xData: minArr, index: 8, name : '坐姿' })
+        postureArr.push(JSON.parse(e.data).posture == '平躺' ? 1 : JSON.parse(e.data).posture == '爬睡' ? 2 : 3)
+        initCharts({ yData: postureArr, xData: minArr, index: 8, name: '坐姿' })
       }
 
       // setBreathe(breatheArr)
@@ -192,7 +194,7 @@ function App() {
       sign: md5(key + timestamp),
       timestamp: timestamp,
       did: deviceId,
-      date: date
+      date: dateStr ? dateStr : date
     }).then(res => {
       if (res.data.msg) {
         window.alert(res.data.msg)
@@ -232,6 +234,7 @@ function App() {
   return (
     <div className="App">
       did:<input type="text" name="" id="" value={deviceId} onChange={(e) => { setDeviceID(e.target.value) }} />
+      date: <input type="date" onChange={(e) => { setDateStr(e.target.value); setDateNum(Date.parse(new Date(e.target.value)) / 1000); console.log(e.target.value, Date.parse(new Date(e.target.value))) }} />
       {timeArr ? <Select defaultValue={timeArr[timeArr.length - 1]} style={{ width: 240 }} onChange={(e) => handleChange(e)}>
         {timeArr.map((a, index) => {
           return <Option key={index} value={index}>{a}</Option>
@@ -242,11 +245,11 @@ function App() {
       {/* {breathe !=='' ? <div>呼吸 {breathe}</div> : null }
       {move!=='' ? <div>体动 {move}</div> : null }
       {level!=='' ? <div>离床 {level}</div> : null } */}
-      <div style={{display : 'flex' , alignItems : 'center' , justifyContent: 'center' , width : '100vw' ,flexDirection : 'column'}}>
-      <div id="myChart5" style={{ width: '64%', height: 250 }}></div>
-      <div id="myChart6" style={{ width: '64%', height: 250 }}></div>
-      <div id="myChart7" style={{ width: '64%', height: 250 }}></div>
-      <div id="myChart8" style={{ width: '64%', height: 250 }}></div></div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100vw', flexDirection: 'column' }}>
+        <div id="myChart5" style={{ width: '64%', height: 250 }}></div>
+        <div id="myChart6" style={{ width: '64%', height: 250 }}></div>
+        <div id="myChart7" style={{ width: '64%', height: 250 }}></div>
+        <div id="myChart8" style={{ width: '64%', height: 250 }}></div></div>
       {/* {breathe !== '' ? <Canvas yData={breathe} xData={dateArr} index={5}/> : null} */}
       {move !== '' ? <Canvas yData={move} xData={dateArr} index={6} /> : null}
       {level !== '' ? <Canvas yData={level} xData={dateArr} index={7} /> : null}
@@ -256,6 +259,7 @@ function App() {
           <p>  睡眠总时长 : {data.total_duration}</p>
           <p>   在床时间 : {data.inbed_duration}</p>
           <p>   上床时间 : {data.gobed_time}</p>
+          <p>   入睡时间 : {data.sleep_time}</p>
           <p>   离床时间 : {data.outbed_time}</p>
           <p>   离床次数 ： {data.outbed.n}</p>
           <p>   离床程度 : {data.outbed.s}</p>
@@ -265,15 +269,20 @@ function App() {
           <p>   入睡时长 : {data.sleep_duration}</p>
           <p>   体动次数 : {data.movement.n}</p>
           <p>   体动程度 : {data.movement.s}</p>
+          <p>   体位转动总次数 : {data.turn_num}</p>
+          <p>   体位转动每小时平均次数 : {data.turn_svg_num}</p>
           <p>睡眠效率百分比 : {data.sleep_eff.r}</p>
           <p> 睡眠效率程度 : {data.sleep_eff.s}</p>
+          <p>   呼吸平均值 : {data.hx_avg}</p>
+          <p>呼吸最大值 : {data.hx_max}</p>
+          <p> 呼吸最小值 : {data.hx_min}</p>
         </div>
-        
+
         <Canvas yData={data.hx_arr} xData={data.dt_arr} name='呼吸率数据集合' index={1} />
-        <Canvas yData={data.outbed_arr} xData={data.dt_arr} index={2} name='离床数据集合' />
-        <Canvas yData={data.move_arr} xData={data.dt_arr} index={3} name='体动数据集合' />
-        <Canvas yData={data.sleep_arr} xData={data.dt_arr} index={4} name='睡眠状态数据集合' />
-   
+        <Canvas yData={data.outbed_arr} xData={data.dt_arr} type={['离床', '在床']} index={2} name='离床数据集合' />
+        <Canvas yData={data.move_arr} xData={data.dt_arr} index={3} type={['正常', '体动']} name='体动数据集合' />
+        <Canvas yData={data.sleep_arr} xData={data.dt_arr} type={['清醒', '浅睡', '深睡']} index={4} name='睡眠状态数据集合' />
+        <Canvas yData={data.hxsus_arr} xData={data.dt_arr} type={['正常', '暂停']} index={10} name='呼吸暂停' />
       </> : null}
     </div>
   );

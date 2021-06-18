@@ -5,7 +5,6 @@ import './chart.css';
 export default class App extends Component {
     constructor(props) {
         super(props);
-        console.log(props, props.xData)
     }
 
     componentDidMount() {
@@ -22,16 +21,16 @@ export default class App extends Component {
         // }
     }
 
-    static getDerivedStateFromProps(props, state){
-        // console.log(props,'props')
-    }
-    getSnapshotBeforeUpdate(prevProps, prevState) {
-        // console.log(prevProps , 'prevProps')
-        return prevProps
-    }
-    componentDidUpdate(prevProps, prevState, snapshot){
-        this.initCharts(snapshot)
-    }
+    // static getDerivedStateFromProps(props, state){
+    //     // console.log(props,'props')
+    // }
+    // getSnapshotBeforeUpdate(prevProps, prevState) {
+    //     // console.log(prevProps , 'prevProps')
+    //     return prevProps
+    // }
+    // componentDidUpdate(prevProps, prevState, snapshot){
+    //     this.initCharts(snapshot)
+    // }
     // static get
     //初始化
     initCharts = (props) => {
@@ -55,7 +54,29 @@ export default class App extends Component {
                 type: 'value',
                 // data: [0,1,2,3,4,5,6],
                 min: 0,
-                minInterval: 1
+                minInterval: 1,
+                axisLabel: {
+                  show: true,
+                  textStyle: {
+                    color: '#000'
+                  },
+                  // 这里重新定义就可以
+                  formatter: props.type ? function(value) {
+                    var texts = []
+                     if (value === 0 || value === '0') {
+                      texts.push(props.type[0])
+                    } else if (value === 1 || value === '1') {
+                      texts.push(props.type[1])
+                    } else if (value === 2 || value === '2') {
+                      texts.push(props.type[2])
+                    } else if (value === 4 || value === '4') {
+                      texts.push('V类')
+                    } else if (value === 5 || value === '5') {
+                      texts.push('Ⅵ类')
+                    }
+                    return texts
+                  } : null
+                },
             },
             series: [
                 {
