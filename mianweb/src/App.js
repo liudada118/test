@@ -18,6 +18,7 @@ let ws
 const { Option } = Select;
 const createUrl = 'http://bah.bodyta.com:19356/rec/report'
 const delUrl = 'http://bah.bodyta.com:19356/rec/clear'
+const fetchData = 'http://bah.bodyta.com:19356/rec/list'
 const key = '13a43a4fd27e4b9e8acee7b82c11e27c'
 
 // function useDebounceHook(value, delay) {
@@ -116,14 +117,16 @@ function App() {
   const [level, setLevel] = useState('')
 
 
-  const [deviceId, setDeviceID] = useState('308201171')
+  const [deviceId, setDeviceID] = useState('404833897')
   const [data, setData] = useState('')
   const [allData, setAllData] = useState('')
   const [timeArr, setTimeArr] = useState('')
   const [rp_id, setRp_id] = useState('')
   const [dateStr, setDateStr] = useState('')
   const [dateNum, setDateNum] = useState('')
-  console.log('re', breathe)
+  const [post, setPost] = useState('')
+  const [oriData, setOri] = useState('')
+
   // const deviceIddeb = useDebounceHook(deviceId, 1000);
   // useEffect(() => {
 
@@ -138,8 +141,8 @@ function App() {
       console.log('ws sussess')
     }
     ws.onmessage = (e) => {
-      // console.log(dateArr ,breatheArr,levelArr )
-      console.log(JSON.parse(e.data), '++++++++++++++++++++++++++++++')
+
+
       if (JSON.parse(e.data).value) {
         let dataArr = JSON.parse(e.data).value.split('-')
         breatheArr.push(parseInt(dataArr[2], 16))
@@ -171,7 +174,7 @@ function App() {
         let min = nowDate.getMinutes()
         let date = hour + ':' + min
         minArr.push(date)
-        postureArr.push(JSON.parse(e.data).posture == '平躺' ? 1 : JSON.parse(e.data).posture == '爬睡' ? 2 : 3)
+        postureArr.push(JSON.parse(e.data).posture == '平躺' ? 1 : JSON.parse(e.data).posture == '趴睡' ? 2 : 3)
         initCharts({ yData: postureArr, xData: minArr, index: 8, name: '坐姿' })
       }
 
@@ -184,7 +187,7 @@ function App() {
     }
 
 
-
+    fetchDate()
     const timestamp = Date.parse(new Date()) / 1000
     const year = new Date().getFullYear()
     const month = new Date().getMonth() + 1
@@ -199,14 +202,25 @@ function App() {
       if (res.data.msg) {
         window.alert(res.data.msg)
       }
-      console.log(res)
+
       if (res.data.rp_id) {
         setRp_id(res.data.rp_id)
-        console.log(res.data.rp_id)
+
       }
       if (Array.isArray(res.data.data)) {
         setData(res.data.data[res.data.data.length - 1])
+        let postData = []
+        for (let i = 0; i < res.data.data[res.data.data.length - 1].posture_arr.length; i++) {
 
+          if (res.data.data[res.data.data.length - 1].posture_arr[i] == '平躺') {
+            postData.push(0)
+          } else if (res.data.data[res.data.data.length - 1].posture_arr[i] == '趴睡') {
+            postData.push(1)
+          } else if (res.data.data[res.data.data.length - 1].posture_arr[i] == '侧躺') {
+            postData.push(2)
+          }
+        }
+        setPost(postData)
         setAllData(res.data.data)
         let timearr = []
         res.data.data.map((a, index) => {
@@ -219,7 +233,7 @@ function App() {
     })
   }
   const onDelete = () => {
-    console.log(rp_id)
+
     const timestamp = Date.parse(new Date()) / 1000
     axios.post(delUrl, {
       sign: md5(key + timestamp),
@@ -228,13 +242,65 @@ function App() {
     }).then(res => console.log(res, 'delete'))
   }
   const handleChange = (value) => {
-    console.log(value)
+
     setData(allData[value])
+
+    let postData = []
+    for (let i = 0; i < allData[value].posture_arr.length; i++) {
+      if (allData[value].posture_arr[i] == '平躺') {
+        postData.push(0)
+      } else if (allData[value].posture_arr[i] == '爬睡') {
+        postData.push(1)
+      } else if (allData[value].posture_arr[i] == '侧躺') {
+        postData.push(2)
+      }
+    }
+    setPost(postData)
+  }
+  const fetchDate = () => {
+    const timestamp = Date.parse(new Date()) / 1000
+    const year = new Date().getFullYear()
+    const month = new Date().getMonth() + 1
+    const day = new Date().getDate()
+    const date = `${year}-${month}-${day}`
+    axios.post(fetchData, {
+      sign: md5(key + timestamp),
+      timestamp: timestamp,
+      did: deviceId,
+      date: dateStr ? dateStr : date
+    }).then(res => {
+
+      let arr = [[],[],[],[],[],[],[]]
+      res.data.data.bed.forEach((a, index) => {
+        let value = a.value.split('-')
+        // value.forEach((b, index) => {
+        //   arr[index].push(parseInt(b, 16))
+        // })
+        for(let i = 0 ; i < 5 ; i++){
+          arr[i].push(parseInt(value[i], 16))
+        }
+
+      })
+      res.data.data.posture.forEach((a,index) => {
+       
+          if (a.value == '平躺') {
+            arr[5].push(0)
+          } else if (a.value == '爬睡') {
+            arr[5].push(1)
+          } else if (a.value == '侧躺') {
+            arr[5].push(2)
+          }
+        
+        // arr[5].push(a.value)
+        arr[6].push(new Date(a.time*1000).getHours()+':'+new Date(a.time*1000).getMinutes())
+      })
+      setOri(arr)
+    })
   }
   return (
     <div className="App">
       did:<input type="text" name="" id="" value={deviceId} onChange={(e) => { setDeviceID(e.target.value) }} />
-      date: <input type="date" onChange={(e) => { setDateStr(e.target.value); setDateNum(Date.parse(new Date(e.target.value)) / 1000); console.log(e.target.value, Date.parse(new Date(e.target.value))) }} />
+      date: <input type="date" onChange={(e) => { setDateStr(e.target.value); setDateNum(Date.parse(new Date(e.target.value)) / 1000); }} />
       {timeArr ? <Select defaultValue={timeArr[timeArr.length - 1]} style={{ width: 240 }} onChange={(e) => handleChange(e)}>
         {timeArr.map((a, index) => {
           return <Option key={index} value={index}>{a}</Option>
@@ -242,6 +308,7 @@ function App() {
       </Select> : null}
       <button onClick={() => { create() }} >请求</button>
       <button onClick={() => { onDelete() }}>删除</button>
+      <button onClick={() => { fetchDate() }} >请求原始数据</button>
       {/* {breathe !=='' ? <div>呼吸 {breathe}</div> : null }
       {move!=='' ? <div>体动 {move}</div> : null }
       {level!=='' ? <div>离床 {level}</div> : null } */}
@@ -281,8 +348,13 @@ function App() {
         <Canvas yData={data.hx_arr} xData={data.dt_arr} name='呼吸率数据集合' index={1} />
         <Canvas yData={data.outbed_arr} xData={data.dt_arr} type={['离床', '在床']} index={2} name='离床数据集合' />
         <Canvas yData={data.move_arr} xData={data.dt_arr} index={3} type={['正常', '体动']} name='体动数据集合' />
+        <Canvas yData={oriData[1]} xData={oriData[6]}   index={13} name='原始体动集合' />
         <Canvas yData={data.sleep_arr} xData={data.dt_arr} type={['清醒', '浅睡', '深睡']} index={4} name='睡眠状态数据集合' />
-        <Canvas yData={data.hxsus_arr} xData={data.dt_arr} type={['正常', '暂停']} index={10} name='呼吸暂停' />
+        <Canvas yData={data.hxsus_arr} xData={data.dt_arr} type={['正常', '暂停']} index={12} name='呼吸暂停' />
+        {/* <Canvas yData={[0,1,1,1]} xData={data.dt_arr} type={['正常', '暂停']} index={12} name='呼吸暂停' /> */}
+        <Canvas yData={post} xData={data.dt_arr} type={["平躺", "爬睡", "侧躺"]} index={10} name='睡姿集合' />
+        <Canvas yData={oriData[3]} xData={oriData[6]}   index={14} name='原始呼吸集合' />
+        <Canvas yData={oriData[5]} xData={oriData[6]}  type={["平躺", "爬睡", "侧躺"]} index={15} name='原始睡姿集合' />
       </> : null}
     </div>
   );

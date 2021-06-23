@@ -63,11 +63,11 @@ export default class App extends Component {
                   // 这里重新定义就可以
                   formatter: props.type ? function(value) {
                     var texts = []
-                     if (value === 0 || value === '0') {
+                     if (value === 0 || value === '0' || value == '平躺') {
                       texts.push(props.type[0])
-                    } else if (value === 1 || value === '1') {
+                    } else if (value === 1 || value === '1'|| value == '爬睡') {
                       texts.push(props.type[1])
-                    } else if (value === 2 || value === '2') {
+                    } else if (value === 2 || value === '2'|| value == '侧躺') {
                       texts.push(props.type[2])
                     } else if (value === 4 || value === '4') {
                       texts.push('V类')
