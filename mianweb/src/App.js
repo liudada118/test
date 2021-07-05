@@ -48,11 +48,27 @@ const initCharts = (props) => {
       // min:props.xData[0], // 起始
       // max:props.xData[props.xData.length -1] // 终止
     },
+    show: true,
+    grid: {
+      backgroundColor : 'black',
+      borderColor :  'black',
+      borderwidth: 0,
+      show: true,
+    },
+    // legend: {
+    //   backgroundColor : 'black',
+    //   },
     yAxis: {
       type: 'value',
       data: props.index == 8 ? ["平躺", "趴睡", "侧躺"] : '',
       min: 0,
       minInterval: 1,
+      splitLine: {
+        lineStyle: {
+          // 使用深浅的间隔色
+          color: ["black"],
+        },
+      },
       axisLabel: {
         show: true,
         textStyle: {
@@ -84,7 +100,8 @@ const initCharts = (props) => {
         data: props.yData,
         type: 'line',
         smooth: true,
-        color: '#000',
+        
+        color: 'rgb(0,0,255)',
         areaStyle: {
           color: {
             type: 'linear',
@@ -92,10 +109,11 @@ const initCharts = (props) => {
             y: 0,
             x2: 1,
             y2: 0,
+            // backgroundColor : 'black',
             colorStops: [{
-              offset: 1, color: '#e6e6e6' // 0% 处的颜色
+              offset: 1, color: 'rgb(0,0,255)' // 0% 处的颜色
             }, {
-              offset: 0, color: '#fff' // 100% 处的颜色
+              offset: 0, color: 'rgb(0,0,255)' // 100% 处的颜色
             }],
             global: false // 缺省为 false
           }
@@ -109,6 +127,86 @@ const initCharts = (props) => {
     myChart.resize();
   });
 }
+
+// const initAllCharts = (props) => {
+//   // document.createElement('div' , {id : `myChart${props.index}`})
+//   let myChart = echarts.init(document.getElementById(`myChart${props.index}`));
+//   let option = {
+//     title: {
+//       text: props.name
+//     },
+//     tooltip: {
+//       trigger: 'axis'
+
+//     },
+//     xAxis: {
+//       type: 'category',
+//       data: props.xData,
+//       boundaryGap: false,
+//       // min:props.xData[0], // 起始
+//       // max:props.xData[props.xData.length -1] // 终止
+//     },
+//     yAxis: {
+//       type: 'value',
+//       data: props.index == 8 ? ["平躺", "趴睡", "侧躺"] : '',
+//       min: 0,
+//       minInterval: 1,
+//       axisLabel: {
+//         show: true,
+//         textStyle: {
+//           color: '#000'
+//         },
+//         // 这里重新定义就可以
+//         formatter: props.index == 8 ? function (value) {
+//           var texts = []
+//           if (value === 1 || value === '1') {
+//             texts.push('平躺')
+//           } else if (value === 2 || value === '2') {
+//             texts.push('趴睡')
+//           } else if (value === 3 || value === '3') {
+//             texts.push('侧躺')
+//           } else if (value === 4 || value === '4') {
+//             texts.push('V类')
+//           } else if (value === 5 || value === '5') {
+//             texts.push('Ⅵ类')
+//           }
+//           return texts
+//         } : null
+//       },
+
+
+//     },
+//     series: [
+//       {
+//         symbol: "none",
+//         data: props.yData,
+//         type: 'line',
+//         smooth: true,
+//         color: '#000',
+//         areaStyle: {
+//           color: {
+//             type: 'linear',
+//             x: 0,
+//             y: 0,
+//             x2: 1,
+//             y2: 0,
+//             colorStops: [{
+//               offset: 1, color: '#e6e6e6' // 0% 处的颜色
+//             }, {
+//               offset: 0, color: '#fff' // 100% 处的颜色
+//             }],
+//             global: false // 缺省为 false
+//           }
+//         },
+
+//       }
+//     ],
+//   };
+//   myChart.setOption(option);
+//   window.addEventListener("resize", function () {
+//     myChart.resize();
+//   });
+// }
 
 function App() {
 
@@ -199,8 +297,8 @@ function App() {
       did: deviceId,
       date: dateStr ? dateStr : date
     }).then(res => {
-      console.log(res.data.data)
-      res.data.data.forEach((a,index) => {
+      console.log(res.data)
+      res.data.data?.forEach((a,index) => {
         console.log(a.dt_arr.length==Array.from(new Set(a.dt_arr)).length)
       })
       if (res.data.msg) {
@@ -317,8 +415,9 @@ function App() {
       {move!=='' ? <div>体动 {move}</div> : null }
       {level!=='' ? <div>离床 {level}</div> : null } */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100vw', flexDirection: 'column' }}>
-        <div id="myChart5" style={{ width: '64%', height: 250 }}></div>
-        <div id="myChart6" style={{ width: '64%', height: 250 }}></div>
+        {/* <div id='myChart10'style={{ width: '64%', height: 250 }}></div> */}
+        <div id="myChart5" style={{ width: '64%', height: 480 }}></div>
+        <div id="myChart6" style={{ width: '64%', height: 480 }}></div>
         <div id="myChart7" style={{ width: '64%', height: 250 }}></div>
         <div id="myChart8" style={{ width: '64%', height: 250 }}></div></div>
       {/* {breathe !== '' ? <Canvas yData={breathe} xData={dateArr} index={5}/> : null} */}
