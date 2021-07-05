@@ -65,7 +65,7 @@ export default class App extends Component {
                     var texts = []
                      if (value === 0 || value === '0' || value == '平躺') {
                       texts.push(props.type[0])
-                    } else if (value === 1 || value === '1'|| value == '爬睡') {
+                    } else if (value === 1 || value === '1'|| value == '趴睡') {
                       texts.push(props.type[1])
                     } else if (value === 2 || value === '2'|| value == '侧躺') {
                       texts.push(props.type[2])

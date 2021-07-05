@@ -50,7 +50,7 @@ const initCharts = (props) => {
     },
     yAxis: {
       type: 'value',
-      data: props.index == 8 ? ["平躺", "爬睡", "侧躺"] : '',
+      data: props.index == 8 ? ["平躺", "趴睡", "侧躺"] : '',
       min: 0,
       minInterval: 1,
       axisLabel: {
@@ -64,7 +64,7 @@ const initCharts = (props) => {
           if (value === 1 || value === '1') {
             texts.push('平躺')
           } else if (value === 2 || value === '2') {
-            texts.push('爬睡')
+            texts.push('趴睡')
           } else if (value === 3 || value === '3') {
             texts.push('侧躺')
           } else if (value === 4 || value === '4') {
@@ -199,6 +199,10 @@ function App() {
       did: deviceId,
       date: dateStr ? dateStr : date
     }).then(res => {
+      console.log(res.data.data)
+      res.data.data.forEach((a,index) => {
+        console.log(a.dt_arr.length==Array.from(new Set(a.dt_arr)).length)
+      })
       if (res.data.msg) {
         window.alert(res.data.msg)
       }
@@ -207,7 +211,7 @@ function App() {
         setRp_id(res.data.rp_id)
 
       }
-      if (Array.isArray(res.data.data)) {
+      if (Array.isArray(res.data.data)&&res.data.data.length > 0) {
         setData(res.data.data[res.data.data.length - 1])
         let postData = []
         for (let i = 0; i < res.data.data[res.data.data.length - 1].posture_arr.length; i++) {
@@ -249,7 +253,7 @@ function App() {
     for (let i = 0; i < allData[value].posture_arr.length; i++) {
       if (allData[value].posture_arr[i] == '平躺') {
         postData.push(0)
-      } else if (allData[value].posture_arr[i] == '爬睡') {
+      } else if (allData[value].posture_arr[i] == '趴睡') {
         postData.push(1)
       } else if (allData[value].posture_arr[i] == '侧躺') {
         postData.push(2)
@@ -269,9 +273,9 @@ function App() {
       did: deviceId,
       date: dateStr ? dateStr : date
     }).then(res => {
-
-      let arr = [[],[],[],[],[],[],[]]
-      res.data.data.bed.forEach((a, index) => {
+      console.log(res ,'fetch')
+      let arr = [[],[],[],[],[],[],[],[]]
+     if( res.data.data) res.data.data.bed.forEach((a, index) => {
         let value = a.value.split('-')
         // value.forEach((b, index) => {
         //   arr[index].push(parseInt(b, 16))
@@ -279,13 +283,13 @@ function App() {
         for(let i = 0 ; i < 5 ; i++){
           arr[i].push(parseInt(value[i], 16))
         }
-
+        arr[7].push(new Date(a.time*1000).getHours()+':'+new Date(a.time*1000).getMinutes())
       })
-      res.data.data.posture.forEach((a,index) => {
+      if( res.data.data)res.data.data.posture.forEach((a,index) => {
        
           if (a.value == '平躺') {
             arr[5].push(0)
-          } else if (a.value == '爬睡') {
+          } else if (a.value == '趴睡') {
             arr[5].push(1)
           } else if (a.value == '侧躺') {
             arr[5].push(2)
@@ -348,13 +352,13 @@ function App() {
         <Canvas yData={data.hx_arr} xData={data.dt_arr} name='呼吸率数据集合' index={1} />
         <Canvas yData={data.outbed_arr} xData={data.dt_arr} type={['离床', '在床']} index={2} name='离床数据集合' />
         <Canvas yData={data.move_arr} xData={data.dt_arr} index={3} type={['正常', '体动']} name='体动数据集合' />
-        <Canvas yData={oriData[1]} xData={oriData[6]}   index={13} name='原始体动集合' />
+        <Canvas yData={oriData[1]} xData={oriData[7]}   index={13} name='原始体动集合' />
         <Canvas yData={data.sleep_arr} xData={data.dt_arr} type={['清醒', '浅睡', '深睡']} index={4} name='睡眠状态数据集合' />
         <Canvas yData={data.hxsus_arr} xData={data.dt_arr} type={['正常', '暂停']} index={12} name='呼吸暂停' />
         {/* <Canvas yData={[0,1,1,1]} xData={data.dt_arr} type={['正常', '暂停']} index={12} name='呼吸暂停' /> */}
-        <Canvas yData={post} xData={data.dt_arr} type={["平躺", "爬睡", "侧躺"]} index={10} name='睡姿集合' />
-        <Canvas yData={oriData[3]} xData={oriData[6]}   index={14} name='原始呼吸集合' />
-        <Canvas yData={oriData[5]} xData={oriData[6]}  type={["平躺", "爬睡", "侧躺"]} index={15} name='原始睡姿集合' />
+        <Canvas yData={post} xData={data.dt_arr} type={["平躺", "趴睡", "侧躺"]} index={10} name='睡姿集合' />
+        <Canvas yData={oriData[3]} xData={oriData[7]}   index={14} name='原始呼吸集合' />
+        <Canvas yData={oriData[5]} xData={oriData[6]}  type={["平躺", "趴睡", "侧躺"]} index={15} name='原始睡姿集合' />
       </> : null}
     </div>
   );
