@@ -16,9 +16,9 @@ let minArr = []
 let ws
 
 const { Option } = Select;
-const createUrl = 'https://bah.bodyta.com:19356/rec/report'
-const delUrl = 'https://bah.bodyta.com:19356/rec/clear'
-const fetchData = 'https://bah.bodyta.com:19356/rec/list'
+const createUrl = 'http://bah.bodyta.com:19356/rec/report'
+const delUrl = 'http://bah.bodyta.com:19356/rec/clear'
+const fetchData = 'http://bah.bodyta.com:19356/rec/list'
 const key = '13a43a4fd27e4b9e8acee7b82c11e27c'
 
 // function useDebounceHook(value, delay) {
@@ -236,105 +236,30 @@ function App() {
 
   const create = () => {
     nd()
-    ws = new WebSocket(`wss://bah.bodyta.com/bed/${deviceId}`)
-    ws.onopen = (e) => {
-      console.log('ws sussess')
-    }
-    ws.onmessage = (e) => {
+    nd()
+    const data = [18,20,22,16,18,16,18,18,22,16,20]
+    const data1 = [1,4,5,7,3,6,4,7,5,5,6,8]
+    let index = 0
+    setInterval(() => {
+     
+      breatheArr.push(data[index])
+      moveArr.push(data1[index])
+      // levelArr.push(parseInt(dataArr[1], 16))
+      let nowDate = new Date()
+      let hour = nowDate.getHours()
+      let min = nowDate.getMinutes()
+      let sec = nowDate.getSeconds()
+      let date = hour + ':' + min + ':' + sec
+      dateArr.push(date)
 
-
-      if (JSON.parse(e.data).value) {
-        let dataArr = JSON.parse(e.data).value.split('-')
-        breatheArr.push(parseInt(dataArr[2], 16))
-        moveArr.push(parseInt(dataArr[0], 16))
-        levelArr.push(parseInt(dataArr[1], 16))
-        let nowDate = new Date()
-        let hour = nowDate.getHours()
-        let min = nowDate.getMinutes()
-        let sec = nowDate.getSeconds()
-        let date = hour + ':' + min + ':' + sec
-        dateArr.push(date)
-
-        // setBreathe(parseInt(dataArr[2],16))
-        // setMove(parseInt(dataArr[0],16))
-        // setLevel(parseInt(dataArr[1],16))
-        initCharts({ yData: breatheArr, xData: dateArr, index: 5, name: '呼吸' })
-        initCharts({ yData: moveArr, xData: dateArr, index: 6, name: '体动' })
-        initCharts({ yData: levelArr, xData: dateArr, index: 7, name: '离床' })
-      }
-      ws.onclose = () => {
-        ws = new WebSocket(`wss://bah.bodyta.com/bed/${deviceId}`)
-
-      }
-
-
-      if (JSON.parse(e.data).posture) {
-        let nowDate = new Date()
-        let hour = nowDate.getHours()
-        let min = nowDate.getMinutes()
-        let date = hour + ':' + min
-        minArr.push(date)
-        postureArr.push(JSON.parse(e.data).posture == '平躺' ? 1 : JSON.parse(e.data).posture == '趴睡' ? 2 : 3)
-        initCharts({ yData: postureArr, xData: minArr, index: 8, name: '坐姿' })
-      }
-
-      // setBreathe(breatheArr)
-      // setMove(moveArr)
-      // setLevel(levelArr)
-
-
-
-    }
-
-
-    fetchDate()
-    const timestamp = Date.parse(new Date()) / 1000
-    const year = new Date().getFullYear()
-    const month = new Date().getMonth() + 1
-    const day = new Date().getDate()
-    const date = `${year}-${month}-${day}`
-    axios.post(createUrl, {
-      sign: md5(key + timestamp),
-      timestamp: timestamp,
-      did: deviceId,
-      date: dateStr ? dateStr : date
-    }).then(res => {
-      console.log(res.data)
-      res.data.data?.forEach((a, index) => {
-        console.log(a.dt_arr.length == Array.from(new Set(a.dt_arr)).length)
-      })
-      if (res.data.msg) {
-        window.alert(res.data.msg)
-      }
-
-      if (res.data.rp_id) {
-        setRp_id(res.data.rp_id)
-
-      }
-      if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-        setData(res.data.data[res.data.data.length - 1])
-        let postData = []
-        for (let i = 0; i < res.data.data[res.data.data.length - 1].posture_arr.length; i++) {
-
-          if (res.data.data[res.data.data.length - 1].posture_arr[i] == '平躺') {
-            postData.push(0)
-          } else if (res.data.data[res.data.data.length - 1].posture_arr[i] == '趴睡') {
-            postData.push(1)
-          } else if (res.data.data[res.data.data.length - 1].posture_arr[i] == '侧躺') {
-            postData.push(2)
-          }
-        }
-        setPost(postData)
-        setAllData(res.data.data)
-        let timearr = []
-        res.data.data.map((a, index) => {
-          timearr.push(a.gobed_time + '-' + a.outbed_time)
-        })
-        setTimeArr(timearr)
-      }
-
-
-    })
+      // setBreathe(parseInt(dataArr[2],16))
+      // setMove(parseInt(dataArr[0],16))
+      // setLevel(parseInt(dataArr[1],16))
+      initCharts({ yData: breatheArr, xData: dateArr, index: 5, name: '呼吸' })
+      initCharts({ yData: moveArr, xData: dateArr, index: 6, name: '体动' })
+      initCharts({ yData: levelArr, xData: dateArr, index: 7, name: '离床' })
+      index ++
+    }, 3000);
   }
   const onDelete = () => {
 
