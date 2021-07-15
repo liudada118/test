@@ -20,7 +20,7 @@ const createUrl = 'http://bah.bodyta.com:19356/rec/report'
 const delUrl = 'http://bah.bodyta.com:19356/rec/clear'
 const fetchData = 'http://bah.bodyta.com:19356/rec/list'
 const key = '13a43a4fd27e4b9e8acee7b82c11e27c'
-
+const setUrl = 'http://bah.bodyta.com:19356/rec/settime'
 // function useDebounceHook(value, delay) {
 //   const [debounceValue, setDebounceValue] = useState(value);
 //   useEffect(() => {
@@ -226,6 +226,9 @@ function App() {
   const [oriData, setOri] = useState('')
   const [start, setStart] = useState('')
   const [end, setEnd] = useState('')
+
+  const [startTime , setStartTime] = useState('')
+  const [endTime, setEndTime] = useState('')
   // const deviceIddeb = useDebounceHook(deviceId, 1000);
   // useEffect(() => {
 
@@ -326,6 +329,19 @@ function App() {
       setOri(arr)
     })
   }
+
+  const setTime = () => {
+    const timestamp = Date.parse(new Date()) / 1000
+    axios.post(setUrl, {
+      sign: md5(key + timestamp),
+      timestamp: timestamp,
+      did: deviceId,
+      start_time: startTime,
+      end_time : endTime,
+    }).then((res) => {
+      console.log(res)
+    })
+  }
   // useEffect(() => {
   const nd = () => {
     const timestamp = Date.parse(new Date()) / 1000
@@ -350,9 +366,12 @@ function App() {
           return <Option key={index} value={index}>{a}</Option>
         })}
       </Select> : null}
+      设置开始时间: <input type="text" onChange={(e) => { setStartTime(e.target.value) }}/>
+      设置结束时间: <input type="text" onChange={(e) => { setEndTime(e.target.value) }}/>
       <button onClick={() => { create() }} >请求</button>
       <button onClick={() => { onDelete() }}>删除</button>
       <button onClick={() => { fetchDate() }} >请求原始数据</button>
+      <button onClick={() => {setTime()}}>设置请求时间</button>
       {/* {breathe !=='' ? <div>呼吸 {breathe}</div> : null }
       {move!=='' ? <div>体动 {move}</div> : null }
       {level!=='' ? <div>离床 {level}</div> : null } */}
