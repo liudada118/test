@@ -127,6 +127,10 @@ function App() {
   const [post, setPost] = useState('')
   const [oriData, setOri] = useState('')
 
+
+  const [startTime , setStartTime] = useState('')
+  const [endTime, setEndTime] = useState('')
+
   // const deviceIddeb = useDebounceHook(deviceId, 1000);
   // useEffect(() => {
 
@@ -301,6 +305,20 @@ function App() {
       setOri(arr)
     })
   }
+
+  const setTime = () => {
+        const timestamp = Date.parse(new Date()) / 1000
+        axios.post(setUrl, {
+          sign: md5(key + timestamp),
+          timestamp: timestamp,
+          did: deviceId,
+          start_time: startTime,
+          end_time : endTime,
+        }).then((res) => {
+          console.log(res)
+        })
+      }
+
   return (
     <div className="App">
       did:<input type="text" name="" id="" value={deviceId} onChange={(e) => { setDeviceID(e.target.value) }} />
@@ -310,9 +328,12 @@ function App() {
           return <Option key={index} value={index}>{a}</Option>
         })}
       </Select> : null}
+       设置开始时间: <input type="text" onChange={(e) => { setStartTime(e.target.value) }}/>
+      设置结束时间: <input type="text" onChange={(e) => { setEndTime(e.target.value) }}/>
       <button onClick={() => { create() }} >请求</button>
       <button onClick={() => { onDelete() }}>删除</button>
       <button onClick={() => { fetchDate() }} >请求原始数据</button>
+       <button onClick={() => {setTime()}}>设置请求时间</button>
       {/* {breathe !=='' ? <div>呼吸 {breathe}</div> : null }
       {move!=='' ? <div>体动 {move}</div> : null }
       {level!=='' ? <div>离床 {level}</div> : null } */}
