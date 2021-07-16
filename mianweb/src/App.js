@@ -20,7 +20,7 @@ const createUrl = 'http://bah.bodyta.com:19356/rec/report'
 const delUrl = 'http://bah.bodyta.com:19356/rec/clear'
 const fetchData = 'http://bah.bodyta.com:19356/rec/list'
 const key = '13a43a4fd27e4b9e8acee7b82c11e27c'
-
+const setUrl = 'http://bah.bodyta.com:19356/rec/settime'
 // function useDebounceHook(value, delay) {
 //   const [debounceValue, setDebounceValue] = useState(value);
 //   useEffect(() => {
