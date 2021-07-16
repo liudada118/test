@@ -200,7 +200,7 @@ function App() {
       date: dateStr ? dateStr : date
     }).then(res => {
       console.log(res.data.data)
-      res.data.data.forEach((a,index) => {
+      res.data.data?.forEach((a,index) => {
         console.log(a.dt_arr.length==Array.from(new Set(a.dt_arr)).length)
       })
       if (res.data.msg) {
