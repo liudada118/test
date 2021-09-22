@@ -203,7 +203,7 @@ function App() {
       did: deviceId,
       date: dateStr ? dateStr : date
     }).then(res => {
-      console.log(res.data.data)
+      console.log(res)
       res.data.data?.forEach((a,index) => {
         console.log(a.dt_arr.length==Array.from(new Set(a.dt_arr)).length)
       })
@@ -287,7 +287,7 @@ function App() {
         for(let i = 0 ; i < 5 ; i++){
           arr[i].push(parseInt(value[i], 16))
         }
-        arr[7].push(new Date(a.time*1000).getHours()+':'+new Date(a.time*1000).getMinutes())
+        arr[7].push(a.time.split(' ')[1])
       })
       if( res.data.data)res.data.data.posture.forEach((a,index) => {
        
@@ -300,7 +300,7 @@ function App() {
           }
         
         // arr[5].push(a.value)
-        arr[6].push(new Date(a.time*1000).getHours()+':'+new Date(a.time*1000).getMinutes())
+        arr[6].push(a.time.split(' ')[1])
       })
       setOri(arr)
     })
@@ -381,6 +381,13 @@ function App() {
         <Canvas yData={oriData[3]} xData={oriData[7]}   index={14} name='原始呼吸集合' />
         <Canvas yData={oriData[5]} xData={oriData[6]}  type={["平躺", "趴睡", "侧躺"]} index={15} name='原始睡姿集合' />
       </> : null}
+      {
+        oriData? <>
+        <Canvas yData={oriData[0]} xData={oriData[7]}   index={13} name='原始体动集合' />
+        <Canvas yData={oriData[2]} xData={oriData[7]}   index={14} name='原始呼吸集合' />
+        <Canvas yData={oriData[5]} xData={oriData[6]}  type={["平躺", "趴睡", "侧躺"]} index={15} name='原始睡姿集合' />
+        </> : null
+      }
     </div>
   );
 }
